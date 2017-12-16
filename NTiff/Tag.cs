@@ -5,41 +5,62 @@ using System.Text;
 
 namespace NTiff
 {
-    public class Tag
+    /// <summary>
+    /// Represents a raw un-parsed tag as read from a TIFF IFD
+    /// </summary>
+    public class Tag : TagBase
     {
-        public UInt32 Offset { get; set; }
-        public UInt16 ID { get; set; }
-        public TagDataType DataType { get; set; }
-        public UInt32 Length { get; set; }
-        public byte[] RawValue { get; set; } = new byte[4];
-
-        public override string ToString()
+        public override string GetString()
         {
-            return $"{ID}:{DataType}:{Length}:0x{RawValue.PrettyPrint()}";
+            return "0x" + RawValue.PrettyPrint();
+        }
+
+        public override T GetValue<T>(int index)
+        {
+            throw new IndexOutOfRangeException("Tag must be parsed to access values by index");
         }
     }
 
+    /// <summary>
+    /// Represents a parsed tag with a defined type and fetched pointer values (if any).
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Tag<T> : Tag
     {
-        public T[] Values { get; set; } = new T[0];
-        public override string ToString()
+        /// <summary>
+        /// Attempts to fetch a value and cast it to the given type.
+        /// </summary>
+        /// <typeparam name="V"></typeparam>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public override V GetValue<V>(int index)
         {
-            string values = string.Empty;
+            return (V)(object)Values[index];
+        }
+
+        public override string GetString()
+        {
+            string valueStr = string.Empty;
             switch (DataType)
             {
                 case TagDataType.ASCII:
-                    values = new string((char[])(object)Values.ToArray());
+                    valueStr = new string((char[])(object)Values.ToArray()).Replace("\0", "");
                     break;
                 case TagDataType.Byte:
                 case TagDataType.Undefined:
-                    values = ((byte[])(object)Values.ToArray()).PrettyPrint();
+                    valueStr = ((byte[])(object)Values.ToArray()).PrettyPrint();
                     break;
                 default:
-                    values = string.Join(", ", Values);
+                    valueStr = string.Join(", ", Values);
                     break;
-
             }
-            return $"{(BaselineTags)ID}:{DataType}:{Length}:{values}";
+            return valueStr;
+        }
+
+        public T[] Values { get; set; } = new T[0];
+        public override string ToString()
+        {
+            return $"{(BaselineTags)ID}:{DataType}:{Length}:{GetString()}";
         }
 
     }

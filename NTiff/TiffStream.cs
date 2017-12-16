@@ -46,8 +46,55 @@ namespace NTiff
         bool _IsWritable = false;
         Stream _Stream;
 
+        #region image I/O
+
+        /// <summary>
+        /// Read all image strips from the given IFD
+        /// </summary>
+        /// <param name="ifdOffset"></param>
+        /// <returns></returns>
+        public Strip[] ReadStrips(uint ifdOffset)
+        {
+            var tags = ReadIFD(ifdOffset).tags;
+            var offsets = tags.Where(t => t.ID == (ushort)BaselineTags.StripOffsets).FirstOrDefault();
+            var byteLengths = tags.Where(t => t.ID == (ushort)BaselineTags.StripByteCounts).FirstOrDefault();
+
+            if (offsets == null) { throw new IOException("IFD is missing StripOffsets tag."); }
+            if (byteLengths == null) { throw new IOException("IFD is missing StripByteCounts tag."); }
+
+            // Offsets and lengths can be either ushort or uint, which complicates things with our Tag<T> generics
+            offsets = ParseTag(offsets);
+            byteLengths = ParseTag(byteLengths);
+
+            var strips = new Strip[offsets.Length];
+
+            for (ushort i = 0; i < offsets.Length; i++)
+            {
+                var offset = offsets.GetValue<uint>(i);
+                var len = byteLengths.GetValue<uint>(i);
+                var bytes = new byte[len];
+                _Stream.Seek(offset, SeekOrigin.Begin);
+                _Stream.Read(bytes, 0, (int)len);
+
+                strips[i] = new Strip
+                {
+                    ImageData = bytes,
+                    StripNumber = i,
+                    StripOffset = offset
+                };
+            }
+
+            return strips;
+        }
+
+        #endregion
+
+        #region tag I/O
+
         public (UInt32 nextIfd, Tag[] tags) ReadIFD(UInt32 offset)
         {
+            _Stream.Seek(offset, SeekOrigin.Begin);
+
             var tagCount = ReadWord();
             var tags = new Tag[tagCount];
 
@@ -60,40 +107,15 @@ namespace NTiff
             return (nextIfd, tags);
         }
 
-        /// <summary>
-        /// Reads and validates the TIFF header from the underlying stream, and returns the offset of the first IFD (IFD0).
-        /// </summary>
-        /// <returns></returns>
-        public UInt32 ReadHeader()
+        public (UInt32 nextIfd, Tag[] tags) ParseIFD(UInt32 offset)
         {
-            _Stream.Seek(0, SeekOrigin.Begin);
-            var magic = ReadWord(); // header bytes are paired so endianness does not matter
-
-            if (magic == 0x4d4d) { IsBigEndian = true; }
-            else if (magic == 0x4949) { IsBigEndian = false; }
-            else
+            var result = ReadIFD(offset);
+            for (int i = 0; i < result.tags.Length; i++)
             {
-                throw new FormatException("Stream does not contain a valid TIFF header.");
+                result.tags[i] = ParseTag(result.tags[i]);
             }
-
-            var version = ReadWord();
-            if (version != 42)
-            {
-                throw new FormatException($"Invalid TIFF version: {version}");
-            }
-
-            var ifd0 = ReadDWord();
-            if (ifd0 >= 8 && ifd0 < _Stream.Length)
-            {
-                return ifd0;
-            }
-            else
-            {
-                throw new IOException($"Value for IFD0 {ifd0} is not valid.");
-            }
+            return result;
         }
-
-        #region tag I/O
 
         public Tag ReadTag()
         {
@@ -108,7 +130,7 @@ namespace NTiff
         }
 
         /// <summary>
-        /// Attempts to parse the given Tag into an appropriate Tag<T>
+        /// Attempts to parse the given Tag into an appropriate Tag<T> and returns a boxed Tag value
         /// </summary>
         /// <param name="tag"></param>
         /// <returns></returns>
@@ -178,50 +200,42 @@ namespace NTiff
             return parsedTag;
         }
 
-        /*
-        /// <summary>
-        /// Read all image strips from the given IFD
-        /// </summary>
-        /// <param name="ifdOffset"></param>
-        /// <returns></returns>
-        public Strip[] ReadStrips(uint ifdOffset)
-        {
-            var tags = ReadIFD(ifdOffset).tags;
-            var offsets = tags.Where(t => t.ID == (ushort)BaselineTags.StripOffsets).FirstOrDefault();
-            var byteLengths = tags.Where(t => t.ID == (ushort)BaselineTags.StripByteCounts).FirstOrDefault();
-
-            if (offsets == null) { throw new IOException("IFD is missing StripOffsets tag."); }
-            if (byteLengths == null) { throw new IOException("IFD is missing StripByteCounts tag."); }
-
-            // Offsets and lengths can be either ushort or uint, which complicates things with our Tag<T> generics
-            offsets = ParseTag(offsets);
-            byteLengths = ParseTag(byteLengths);
-
-            var strips = new Strip[offsets.Length];
-
-            for (ushort i = 0; i < offsets.Length; i++)
-            {
-                var offset = (uint)(Tagoffsets.Values[i];
-                var len = (uint)byteLengths.Values[i];
-                var bytes = new byte[len];
-                _Stream.Seek(offset, SeekOrigin.Begin);
-                _Stream.Read(bytes, 0, (int)len);
-
-                strips[i] = new Strip
-                {
-                    ImageData = bytes,
-                    StripNumber = i,
-                    StripOffset = offset
-                };
-            }
-
-            return strips;
-        } 
-        */
-
         #endregion
 
         #region basic I/O
+
+        /// <summary>
+        /// Reads and validates the TIFF header from the underlying stream, and returns the offset of the first IFD (IFD0).
+        /// </summary>
+        /// <returns></returns>
+        public UInt32 ReadHeader()
+        {
+            _Stream.Seek(0, SeekOrigin.Begin);
+            var magic = ReadWord(); // header bytes are paired so endianness does not matter
+
+            if (magic == 0x4d4d) { IsBigEndian = true; }
+            else if (magic == 0x4949) { IsBigEndian = false; }
+            else
+            {
+                throw new FormatException("Stream does not contain a valid TIFF header.");
+            }
+
+            var version = ReadWord();
+            if (version != 42)
+            {
+                throw new FormatException($"Invalid TIFF version: {version}");
+            }
+
+            var ifd0 = ReadDWord();
+            if (ifd0 >= 8 && ifd0 < _Stream.Length)
+            {
+                return ifd0;
+            }
+            else
+            {
+                throw new IOException($"Value for IFD0 {ifd0} is not valid.");
+            }
+        }
 
         T ReadValue<T>() where T : struct
         {
