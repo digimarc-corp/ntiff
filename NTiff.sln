@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2003
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TIFFTools", "TIFFTools\TIFFTools.csproj", "{C486FA43-BABB-45BA-9A41-1BE6E816E195}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TIFFInspector", "TIFFInspector\TIFFInspector.csproj", "{F1E1986C-123A-49D3-8E59-A96EB306B3AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTiff", "NTiff\NTiff.csproj", "{9E20C104-82AA-4629-8349-9E7D9FF1CE12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTiff.Test", "NTiff.Test\NTiff.Test.csproj", "{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C486FA43-BABB-45BA-9A41-1BE6E816E195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C486FA43-BABB-45BA-9A41-1BE6E816E195}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C486FA43-BABB-45BA-9A41-1BE6E816E195}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C486FA43-BABB-45BA-9A41-1BE6E816E195}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1E1986C-123A-49D3-8E59-A96EB306B3AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1E1986C-123A-49D3-8E59-A96EB306B3AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1E1986C-123A-49D3-8E59-A96EB306B3AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1E1986C-123A-49D3-8E59-A96EB306B3AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E0F7B387-DFB6-4C62-95AA-5A2295762B53}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TIFFInspector": {
+      "commandName": "Project",
+      "commandLineArgs": "source.tif"
+    }
+  }
+}
