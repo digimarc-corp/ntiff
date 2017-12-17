@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NTiff
+namespace NTiff.Tags
 {
     public enum TagDataType
     {

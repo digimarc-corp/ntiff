@@ -1,10 +1,11 @@
-﻿using System;
+﻿using NTiff.Tags;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace NTiff
 {
-    static class ExtensionMethods
+    public static class ExtensionMethods
     {
         /// <summary>
         /// Gets the length, in bytes, of a given TIFF tag datatype.
@@ -36,10 +37,20 @@ namespace NTiff
             }
         }
 
+        /// <summary>
+        /// Returns a string as a nul-terminated ASCII char array
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static char[] ToASCIIArray(this string str)
+        {
+            return (str + "\0").ToCharArray();
+        }
+
         public static string PrettyPrint(this byte[] bytes, int maxLength = 20)
         {
             var str = BitConverter.ToString(bytes).Replace("-", "").ToLower();
-            if (str.Length>maxLength)
+            if (str.Length > maxLength)
             {
                 str = str.Substring(0, 20) + "...";
             }

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NTiff
+namespace NTiff.Tags
 {
-    public enum BaselineTags
+    /// <summary>
+    /// Baseline TIFF tag IDs, as taken from https://www.awaresystems.be/imaging/tiff/tifftags/baseline.html
+    /// </summary>
+    public enum BaselineTags : ushort
     {
         NewSubfileType = 254,
         SubfileType = 255,

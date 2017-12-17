@@ -1,9 +1,10 @@
-﻿using System;
+﻿using NTiff.Tags;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NTiff
+namespace NTiff.Tags
 {
     /// <summary>
     /// Represents a raw un-parsed tag as read from a TIFF IFD
@@ -60,7 +61,14 @@ namespace NTiff
         public T[] Values { get; set; } = new T[0];
         public override string ToString()
         {
-            return $"{(BaselineTags)ID}:{DataType}:{Length}:{GetString()}";
+            string tagName;
+            if (Enum.IsDefined(typeof(BaselineTags), ID)) { tagName = ((BaselineTags)ID).ToString(); }
+            else if (Enum.IsDefined(typeof(ExtensionTags), ID)) { tagName = ((ExtensionTags)ID).ToString(); }
+            else if (Enum.IsDefined(typeof(PrivateTags), ID)) { tagName = ((PrivateTags)ID).ToString(); }
+            else if (Enum.IsDefined(typeof(ExifTags), ID)) { tagName = ((ExifTags)ID).ToString(); }
+            else if (Enum.IsDefined(typeof(GPSTags), ID)) { tagName = ((GPSTags)ID).ToString(); }
+            else { tagName = ID.ToString(); }
+            return $"{tagName}:{DataType}:{Length}:{GetString()}";
         }
 
     }

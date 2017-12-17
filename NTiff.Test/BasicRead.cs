@@ -1,10 +1,31 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NTiff.Tags;
+using System;
+using System.Linq;
 
 namespace NTiff.Test
 {
     [TestClass]
-    public class BasicIO
+    public class BasicRead
     {
+        [TestMethod]
+        public void CanGetTagAsString()
+        {
+            var tag = new Tag<char>
+            {
+                DataType = TagDataType.ASCII,
+                ID = 271,
+                Length = 6,
+                Offset = 8,
+                RawValue = new byte[] { 0x08, 0x00, 0x00, 0x00 },
+                Values = "Nikon".ToASCIIArray()
+            };
+
+            var str = tag.ToString();
+
+            Assert.AreEqual("Make:ASCII:6:Nikon", str);
+        }
+
         [TestMethod]
         public void CanReadTiffHeader()
         {
@@ -30,7 +51,7 @@ namespace NTiff.Test
             var ifd0 = stream.ParseIFD(stream.ReadHeader());
 
             Assert.AreEqual("NIKON D90", ifd0.tags[7].GetString());
-            Assert.AreEqual(8, ifd0.tags[3].GetValue<ushort>(2));
+            Assert.AreEqual(8, ifd0.tags[3].GetValue<short>(2));
             Assert.AreEqual(2991224u, ifd0.tags[22].GetValue<uint>(0));
         }
 
@@ -42,7 +63,7 @@ namespace NTiff.Test
 
             Assert.AreEqual(23, ifd0.tags.Length);
         }
-                
+
         [TestMethod]
         public void CanLoadStrips()
         {
@@ -51,6 +72,6 @@ namespace NTiff.Test
 
             Assert.AreEqual(1, strips.Length);
             Assert.AreEqual(2965650, strips[0].ImageData.Length);
-        }        
+        }
     }
 }

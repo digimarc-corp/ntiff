@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NTiff
+namespace NTiff.Types
 {
     public struct Rational
     {
@@ -23,26 +23,5 @@ namespace NTiff
         {
             return $"{Numerator:N0}/{Denominator:N0}";
         }
-    }
-
-    public struct SRational
-    {
-        public SRational(int numerator, int denominator)
-        {
-            Numerator = numerator;
-            Denominator = denominator;
-        }
-
-        public readonly int Numerator;
-        public readonly int Denominator;
-        public double ToDouble()
-        {
-            return Numerator / Denominator;
-        }
-
-        public override string ToString()
-        {
-            return $"{Numerator:N0}/{Denominator:N0}";
-        }
-    }
+    }   
 }

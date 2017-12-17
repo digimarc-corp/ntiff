@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using NTiff.Tags;
+using NTiff.Types;
 
 namespace NTiff
 {
@@ -87,9 +89,65 @@ namespace NTiff
             return strips;
         }
 
-        #endregion
-
         #region tag I/O
+
+        /// <summary>
+        /// Writes an initial tag placeholder, and updates the offset property if the tag object.
+        /// </summary>
+        /// <param name="tag"></param>
+        public void WriteTagPlaceholder(Tag tag)
+        {
+            var offset = _Stream.Position;
+            WriteWord(tag.ID);
+            WriteWord((ushort)tag.DataType);
+            WriteDWord(tag.Length);
+            WriteDWord(0);
+
+            tag.Offset = (uint)offset;
+        }
+
+        /// <summary>
+        /// Writes the actual data payload for a tag and updates the pointer value (if necessary)
+        /// </summary>
+        /// <param name="tag"></param>
+        public void FinalizeTag<T>(Tag<T> tag) where T : struct
+        {
+            if (tag.Length != tag.Values.Length) { throw new DataMisalignedException("Tag Length property and the length of the Values array do not match."); }
+
+            var atomicLength = tag.DataType.AtomicLength();
+            _Stream.Seek(tag.Offset + 4, SeekOrigin.Begin);
+            WriteDWord(tag.Length);
+            if (atomicLength * tag.Length > 4)
+            {
+                var pointer = (uint)_Stream.Seek(0, SeekOrigin.End);
+                foreach (var value in tag.Values)
+                {
+                    WriteValue<T>(value);
+                }
+                _Stream.Seek(tag.Offset + 8, SeekOrigin.Begin);
+                var bytes = BitConverter.GetBytes(pointer);
+                CheckEndian(bytes);
+                _Stream.Write(bytes, 0, 4);
+                tag.RawValue = bytes;                
+            }
+            else
+            {
+                // zero out the data field in case we don't have enough values to fill it.
+                WriteDWord(0);
+                _Stream.Seek(-4, SeekOrigin.Current);
+                foreach (var value in tag.Values)
+                {
+                    // arrays written to the Tag data field are always left-justified, even in little-endian systems
+                    WriteValue<T>(value);
+                }
+                //reread raw value
+                _Stream.Seek(tag.Offset + 8, SeekOrigin.Begin);
+                _Stream.Read(tag.RawValue, 0, 4);
+            }
+
+        }
+
+        #endregion
 
         public (UInt32 nextIfd, Tag[] tags) ReadIFD(UInt32 offset)
         {
@@ -155,7 +213,7 @@ namespace NTiff
                 case TagDataType.SRational:
                     return ParseTag<SRational>(tag);
                 case TagDataType.Short:
-                    return ParseTag<ushort>(tag);
+                    return ParseTag<short>(tag);
                 case TagDataType.SLong:
                     return ParseTag<int>(tag);
                 case TagDataType.SShort:
@@ -237,19 +295,93 @@ namespace NTiff
             }
         }
 
+        /// <summary>
+        /// Writes a standard TIFF header at the beginning of the stream.
+        /// </summary>
+        public void WriteHeader()
+        {
+            _Stream.Seek(0, SeekOrigin.Begin);
+            if (IsBigEndian) { _Stream.Write(new byte[] { 0x4d, 0x4d }, 0, 2); }
+            else { _Stream.Write(new byte[] { 0x49, 0x49 }, 0, 2); }
+
+            WriteWord(42);
+        }
+
+        public byte[] ToArray()
+        {
+            _Stream.Seek(0, SeekOrigin.Begin);
+            var bytes = new byte[_Stream.Length];
+            _Stream.Read(bytes, 0, (int)_Stream.Length);
+            return bytes;
+        }
+
+        void WriteValue<T>(T value) where T : struct
+        {
+            if (typeof(T) == typeof(byte)) { WriteByte((byte)(object)value); }
+            else if (typeof(T) == typeof(char)) { WriteByte((byte)(char)(object)value); }
+            else if (typeof(T) == typeof(double)) { WriteDouble((double)(object)value); }
+            else if (typeof(T) == typeof(float)) { WriteFloat((float)(object)value); }
+            else if (typeof(T) == typeof(uint)) { WriteDWord((uint)(object)value); }
+            else if (typeof(T) == typeof(int)) { WriteLong((int)(object)value); }
+            else if (typeof(T) == typeof(short)) { WriteShort((short)(object)value); }
+            else if (typeof(T) == typeof(ushort)) { WriteWord((ushort)(object)value); }
+            else if (typeof(T) == typeof(Rational)) { WriteRational((Rational)(object)value); }
+            else if (typeof(T) == typeof(SRational)) { WriteSRational((SRational)(object)value); }
+            else
+            {
+                throw new ArgumentException($"Can't write value of type {typeof(T).ToString()}");
+            }
+        }       
+
+        private void WriteSRational(SRational value)
+        {
+            WriteLong(value.Numerator);
+            WriteLong(value.Denominator);
+        }
+
+        private void WriteRational(Rational value)
+        {
+            WriteDWord(value.Numerator);
+            WriteDWord(value.Denominator);
+        }
+
+        private void WriteShort(short value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            WriteEndianBytes(bytes);
+        }
+
+        private void WriteLong(int value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            WriteEndianBytes(bytes);
+        }
+
+        private void WriteFloat(float value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            WriteEndianBytes(bytes);
+        }
+
+        private void WriteDouble(double value)
+        {
+            var bytes = BitConverter.GetBytes(value);
+            WriteEndianBytes(bytes);
+        }
+
         T ReadValue<T>() where T : struct
         {
             object obj = null;
             if (typeof(T) == typeof(char)) { obj = (char)_Stream.ReadByte(); }
-            if (typeof(T) == typeof(byte)) { obj = (byte)_Stream.ReadByte(); }
-            if (typeof(T) == typeof(double)) { obj = ReadDouble(); }
-            if (typeof(T) == typeof(float)) { obj = ReadFloat(); }
-            if (typeof(T) == typeof(uint)) { obj = ReadDWord(); }
-            if (typeof(T) == typeof(int)) { obj = ReadLong(); }
-            if (typeof(T) == typeof(short)) { obj = ReadShort(); }
-            if (typeof(T) == typeof(ushort)) { obj = ReadWord(); }
-            if (typeof(T) == typeof(Rational)) { obj = ReadRational(); }
-            if (typeof(T) == typeof(SRational)) { obj = ReadSRational(); }
+            else if (typeof(T) == typeof(byte)) { obj = (byte)_Stream.ReadByte(); }
+            else if (typeof(T) == typeof(double)) { obj = ReadDouble(); }
+            else if (typeof(T) == typeof(float)) { obj = ReadFloat(); }
+            else if (typeof(T) == typeof(uint)) { obj = ReadDWord(); }
+            else if (typeof(T) == typeof(int)) { obj = ReadLong(); }
+            else if (typeof(T) == typeof(short)) { obj = ReadShort(); }
+            else if (typeof(T) == typeof(ushort)) { obj = ReadWord(); }
+            else if (typeof(T) == typeof(Rational)) { obj = ReadRational(); }
+            else if (typeof(T) == typeof(SRational)) { obj = ReadSRational(); }
 
             if (obj != null)
             {
@@ -275,15 +407,13 @@ namespace NTiff
         public void WriteWord(ushort value)
         {
             var bytes = BitConverter.GetBytes(value);
-            CheckEndian(bytes);
-            _Stream.Write(bytes, 0, 2);
+            WriteEndianBytes(bytes);
         }
 
         public void WriteDWord(uint value)
         {
             var bytes = BitConverter.GetBytes(value);
-            CheckEndian(bytes);
-            _Stream.Write(bytes, 0, 4);
+            WriteEndianBytes(bytes);
         }
 
         public UInt16 ReadWord() { return BitConverter.ToUInt16(ReadEndianBytes(2), 0); }
@@ -303,8 +433,14 @@ namespace NTiff
             return bytes;
         }
 
+        void WriteEndianBytes(byte[] bytes)
+        {
+            CheckEndian(bytes);
+            _Stream.Write(bytes, 0, bytes.Length);
+        }
+
         /// <summary>
-        /// If the active endiannes conflicts with our architecture, reverse the entire byte array.
+        /// If the active endianness conflicts with our architecture, reverse the entire byte array.
         /// </summary>
         /// <param name="bytes"></param>
         void CheckEndian(byte[] bytes)
@@ -341,7 +477,7 @@ namespace NTiff
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return Seek(offset, origin);
+            return _Stream.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
