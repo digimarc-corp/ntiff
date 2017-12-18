@@ -20,7 +20,7 @@ namespace NTiff.Test
                 Length = 1
             };
 
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteTagPlaceholder(tag);
 
@@ -28,7 +28,7 @@ namespace NTiff.Test
                 Assert.IsTrue(data.SequenceEqual(new byte[] { 0x02, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
             }
 
-            using (var stream = new TiffStream(forceBigEndian: true))
+            using (var stream = new TiffStreamWriter(forceBigEndian: true))
             {
                 stream.WriteTagPlaceholder(tag);
 
@@ -47,7 +47,7 @@ namespace NTiff.Test
                 Length = 1
             };
 
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteTagPlaceholder(tag);
                 stream.WriteTagPlaceholder(tag);
@@ -77,7 +77,7 @@ namespace NTiff.Test
                 Values = artist.ToASCIIArray()
             };
 
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteDWord(1);
                 stream.WriteTagPlaceholder(tag);
@@ -106,7 +106,7 @@ namespace NTiff.Test
                 Values = artist.ToASCIIArray()
             };           
 
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteDWord(1);
                 stream.WriteTagPlaceholder(tag);
@@ -124,7 +124,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanWriteWord()
         {
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteWord(42);
 
@@ -132,7 +132,7 @@ namespace NTiff.Test
                 Assert.IsTrue(data.SequenceEqual(new byte[] { 0x2a, 0x00 }));
             }
 
-            using (var stream = new TiffStream(forceBigEndian: true))
+            using (var stream = new TiffStreamWriter(forceBigEndian: true))
             {
                 stream.WriteWord(42);
 
@@ -144,7 +144,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanWriteDWord()
         {
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteDWord(42);
 
@@ -152,7 +152,7 @@ namespace NTiff.Test
                 Assert.IsTrue(data.SequenceEqual(new byte[] { 0x2a, 0x00, 0x00, 0x00 }));
             }
 
-            using (var stream = new TiffStream(forceBigEndian: true))
+            using (var stream = new TiffStreamWriter(forceBigEndian: true))
             {
                 stream.WriteDWord(42);
 
@@ -164,7 +164,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanWriteHeader()
         {
-            using (var stream = new TiffStream())
+            using (var stream = new TiffStreamWriter())
             {
                 stream.WriteHeader();
 
@@ -172,7 +172,7 @@ namespace NTiff.Test
                 Assert.IsTrue(header.SequenceEqual(new byte[] { 0x49, 0x49, 0x2a, 0x00 }));
             }
 
-            using (var stream = new TiffStream(forceBigEndian: true))
+            using (var stream = new TiffStreamWriter(forceBigEndian: true))
             {
                 stream.WriteHeader();
 

@@ -16,7 +16,7 @@ namespace NTiff
         /// <param name="fileName"></param>
         public Tiff(string fileName)
         {
-            _Stream = new TiffStream(fileName);
+            _Stream = new TiffStreamReader(fileName);
             var ifd0 = _Stream.ReadHeader();
 
             var rawIFD = _Stream.ParseIFD(ifd0);
@@ -33,7 +33,7 @@ namespace NTiff
 
         public void Save(string fileName)
         {
-            using (var tiffStream = new TiffStream(forceBigEndian: _Stream.IsBigEndian))
+            using (var tiffStream = new TiffStreamWriter(forceBigEndian: _Stream.IsBigEndian))
             {
                 tiffStream.WriteHeader();
                 tiffStream.WriteDWord(8); // IFD0 will always be immediately after the header
@@ -76,7 +76,7 @@ namespace NTiff
             }
         }
 
-        TiffStream _Stream;
+        TiffStreamReader _Stream;
 
         public List<IFD> IFDs { get; set; } = new List<IFD>();
     }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace NTiff.Test
@@ -18,9 +19,21 @@ namespace NTiff.Test
             try
             {
                 tiff.Save(temp);
-                var srcInfo = new FileInfo(src);
-                var tmpInfo = new FileInfo(temp);
-                Assert.AreEqual(srcInfo.Length, tmpInfo.Length);
+                var srcImg = new ImageMagick.MagickImage(src);
+                var tempImg = new ImageMagick.MagickImage(temp);
+
+                var srcAttributes = srcImg.AttributeNames;
+                var tempAttributes = tempImg.AttributeNames;
+
+                Assert.AreEqual(srcImg.Signature, tempImg.Signature);
+                Assert.IsTrue(srcAttributes.SequenceEqual(tempAttributes));
+                Assert.AreEqual(srcAttributes.Count(), tempAttributes.Count());
+
+                foreach (var attr in srcAttributes)
+                {
+                    if (attr == "date:create" || attr == "date:modify") { continue; }
+                    Assert.AreEqual(srcImg.GetAttribute(attr), tempImg.GetAttribute(attr), attr);
+                }
             }
             finally
             {
