@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2003
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NTiff", "NTiff\NTiff.csproj", "{9E20C104-82AA-4629-8349-9E7D9FF1CE12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Digimarc.NTiff", "Digimarc.NTiff\Digimarc.NTiff.csproj", "{14D235C6-5F02-41C5-A756-D42451A66A02}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NTiff.Test", "NTiff.Test\NTiff.Test.csproj", "{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Digimarc.NTiff.Test", "Digimarc.NTiff.Test\Digimarc.NTiff.Test.csproj", "{BEC37FAA-E16A-48F3-BC16-657AB9927C91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NTiffTool", "NTiffTool\NTiffTool.csproj", "{CD6DD08B-2C07-4A23-8C6F-C5454DD87B88}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Digimarc.NTiffTool", "Digimarc.NTiffTool\Digimarc.NTiffTool.csproj", "{1F4DCDC8-7E3E-4B76-93E7-402A4F92D7E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E20C104-82AA-4629-8349-9E7D9FF1CE12}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2F345C5-3B49-4654-9543-ABB5D4B87DD4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD6DD08B-2C07-4A23-8C6F-C5454DD87B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD6DD08B-2C07-4A23-8C6F-C5454DD87B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD6DD08B-2C07-4A23-8C6F-C5454DD87B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD6DD08B-2C07-4A23-8C6F-C5454DD87B88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14D235C6-5F02-41C5-A756-D42451A66A02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14D235C6-5F02-41C5-A756-D42451A66A02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14D235C6-5F02-41C5-A756-D42451A66A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14D235C6-5F02-41C5-A756-D42451A66A02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEC37FAA-E16A-48F3-BC16-657AB9927C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC37FAA-E16A-48F3-BC16-657AB9927C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC37FAA-E16A-48F3-BC16-657AB9927C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC37FAA-E16A-48F3-BC16-657AB9927C91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F4DCDC8-7E3E-4B76-93E7-402A4F92D7E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F4DCDC8-7E3E-4B76-93E7-402A4F92D7E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F4DCDC8-7E3E-4B76-93E7-402A4F92D7E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F4DCDC8-7E3E-4B76-93E7-402A4F92D7E3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
