@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NTiff
 {
-    public abstract class TiffStreamBase : Stream
+    public abstract class TiffStreamBase : Stream, IDisposable
     {
         protected Stream _Stream;
         protected bool _IsWritable;
@@ -30,8 +30,6 @@ namespace NTiff
             _Stream.Read(bytes, 0, (int)_Stream.Length);
             return bytes;
         }
-
-
 
         #region abstracts inherited from Stream
 
@@ -71,6 +69,35 @@ namespace NTiff
             if (CanWrite) { _Stream.Write(buffer, offset, count); }
             else { throw new IOException("Stream is not writable."); }
         }
+
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected override void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _Stream.Dispose();
+                    _Stream = null;
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+            base.Dispose(disposing);
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~TiffStreamBase() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
 
         #endregion
     }

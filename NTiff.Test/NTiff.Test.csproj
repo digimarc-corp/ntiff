@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -16,11 +15,5 @@
   <ItemGroup>
     <ProjectReference Include="..\NTiff\NTiff.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Samples\eagle_cap_lab.tif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
+  
 </Project>

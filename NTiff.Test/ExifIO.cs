@@ -12,7 +12,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanReadExifBlock()
         {
-            var stream = new TiffStreamReader("Samples/eagle_cap_lab.tif");
+            var stream = new TiffStreamReader(Samples.LAB);
             var exif = stream.ParseIFD(2991224);
 
             Assert.AreEqual(36, exif.tags.Length);

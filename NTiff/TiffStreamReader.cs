@@ -41,6 +41,39 @@ namespace NTiff
             _IsWritable = _Stream.CanWrite;
         }
 
+        public (Image image, uint nextOffset) ReadImage(uint offset)
+        {
+            var rawIFD = ParseIFD(offset);
+
+            var image = new Image();
+
+            // get image tags
+            image.Tags = rawIFD.tags.ToList();
+
+            // get image data
+            image.Strips = ReadStrips(offset).OrderBy(s => s.StripNumber).ToList();
+
+            // get subimages, if any
+            var subIfds = image.Tags.FirstOrDefault(t => t.ID == (uint)ExtensionTags.SubIFDs);
+            if (subIfds != null)
+            {
+                foreach (var subOffset in ((Tag<uint>)subIfds).Values)
+                {
+                    image.SubImages.Add(ReadImage(subOffset).image);
+                }
+            }
+
+            // load Exif, if present
+            var exifOffset = rawIFD.tags.Where(t => t.ID == (ushort)PrivateTags.ExifIFD).FirstOrDefault();
+            if (exifOffset != null)
+            {
+                image.Exif = ParseIFD(exifOffset.GetValue<uint>(0)).tags.ToList();
+            }
+
+
+            return (image, rawIFD.nextIfd);
+        }
+
         /// <summary>
         /// Read all image strips from the given IFD
         /// </summary>
@@ -92,7 +125,7 @@ namespace NTiff
                 tags[i] = ReadTag();
             }
 
-            var nextIfd = ReadWord();
+            var nextIfd = ReadDWord();
             return (nextIfd, tags);
         }
 
@@ -137,6 +170,7 @@ namespace NTiff
                     return ParseTag<double>(tag);
                 case TagDataType.Float:
                     return ParseTag<float>(tag);
+                case TagDataType.IFD:
                 case TagDataType.Long:
                     return ParseTag<uint>(tag);
                 case TagDataType.Rational:
@@ -260,9 +294,7 @@ namespace NTiff
         public double ReadDouble() { return BitConverter.ToDouble(ReadEndianBytes(4), 0); }
         public Rational ReadRational() { return new Rational(ReadDWord(), ReadDWord()); }
         public SRational ReadSRational() { return new SRational(ReadLong(), ReadLong()); }
-
-
-
+        
         protected byte[] ReadEndianBytes(int count)
         {
             var bytes = new byte[count];

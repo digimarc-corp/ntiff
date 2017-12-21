@@ -53,6 +53,10 @@ namespace NTiff.Tags
         /// <summary>
         /// 64-bit single precision float (double)
         /// </summary>
-        Double = 12
+        Double = 12,
+        /// <summary>
+        /// 32-bit unsigned pointer to a sub IFD, as in a pyramid TIFF
+        /// </summary>
+        IFD = 13
     }
 }

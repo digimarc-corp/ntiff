@@ -27,6 +27,7 @@ namespace NTiff
                 case TagDataType.Float:
                 case TagDataType.Long:
                 case TagDataType.SLong:
+                case TagDataType.IFD:
                     return 4;
                 case TagDataType.Double:
                 case TagDataType.Rational:

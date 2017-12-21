@@ -105,6 +105,23 @@ namespace NTiff
             }
         }
 
+
+        /// <summary>
+        /// Updates the pointer for the next IFD record.
+        /// </summary>
+        /// <param name="previousOffset"></param>
+        /// <param name="imageOffset"></param>
+        internal void UpdateIFDPointer(uint ifdOffset, uint nextIfdOffset)
+        {
+            // read first word from this IFD
+            Seek(ifdOffset, SeekOrigin.Begin);
+            var tagCount = ReadWord();
+            // skip to the end of the IFD
+            Seek(tagCount * 12, SeekOrigin.Current);
+            // write the new pointer
+            WriteDWord(nextIfdOffset);
+        }
+
         #region tag I/O
 
         /// <summary>
@@ -290,7 +307,7 @@ namespace NTiff
         /// <param name="offset"></param>
         /// <param name="origin"></param>
         /// <returns></returns>
-        long SeekWord(uint offset, SeekOrigin origin)
+        public long SeekWord(uint offset, SeekOrigin origin)
         {
             Seek(offset, origin);
             return SeekWord();
@@ -314,13 +331,7 @@ namespace NTiff
             _Stream.Write(bytes, 0, bytes.Length);
         }
 
-
         #endregion
-
-        #region abstract implementations from Stream
-
-
-
-        #endregion
+     
     }
 }

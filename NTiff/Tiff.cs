@@ -10,62 +10,99 @@ namespace NTiff
 {
     public class Tiff
     {
+        public List<Image> Images { get; set; } = new List<Image>();
+        public bool IsBigEndian { get; set; }
+
+        public Tiff() { }
+
         /// <summary>
         /// Loads a TIFF file from disk.
         /// </summary>
         /// <param name="fileName"></param>
         public Tiff(string fileName)
         {
-            _Stream = new TiffStreamReader(fileName);
-            var ifd0 = _Stream.ReadHeader();
+            LoadTiff(fileName);
+        }
 
-            var rawIFD = _Stream.ParseIFD(ifd0);
-            var ifd = new IFD();
-            ifd.Tags = rawIFD.tags.ToList();
-            ifd.Strips = _Stream.ReadStrips(ifd0).OrderBy(s => s.StripNumber).ToList();
-            var exifOffset = rawIFD.tags.Where(t => t.ID == (ushort)PrivateTags.ExifIFD).FirstOrDefault();
-            if (exifOffset != null)
+        private void LoadTiff(string fileName)
+        {
+            using (var stream = new TiffStreamReader(fileName))
             {
-                ifd.Exif = _Stream.ParseIFD(exifOffset.GetValue<uint>(0)).tags.ToList();
+                LoadImage(stream);
             }
-            IFDs.Add(ifd);
+        }
+
+        private void LoadImage(TiffStreamReader stream)
+        {
+            Image image;
+            uint offset;
+            var offsets = new HashSet<uint>(); // keep track of read offsets so we can detect loops
+
+            offset = stream.ReadHeader();
+
+            // set endianness now that the stream header has been validated
+            IsBigEndian = stream.IsBigEndian;
+
+            // read all images from file
+            while (offset != 0)
+            {
+                if (offsets.Contains(offset)) { throw new InvalidDataException("Circular image reference detected in file. Aborting load."); }
+                else
+                {
+                    offsets.Add(offset);
+                    (image, offset) = stream.ReadImage(offset);
+                    Images.Add(image);
+                }
+            }
         }
 
         public void Save(string fileName)
         {
-            using (var tiffStream = new TiffStreamWriter(forceBigEndian: _Stream.IsBigEndian))
+            using (var tiffStream = new TiffStreamWriter(forceBigEndian: IsBigEndian))
             {
                 tiffStream.WriteHeader();
                 tiffStream.WriteDWord(8); // IFD0 will always be immediately after the header
-                var previousOffset = (uint)tiffStream.Position;
+                uint previousOffset = 0;
 
-                foreach (var ifd in IFDs)
+                foreach (var image in Images)
                 {
-                    if (ifd.Exif?.Count > 0 && !ifd.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
+                    var imageOffset = (uint)tiffStream.SeekWord(0, SeekOrigin.End);
+
+                    // update the pointer from the previous image
+                    if (previousOffset != 0)
+                    {
+                        tiffStream.UpdateIFDPointer(previousOffset, imageOffset);
+                        tiffStream.Seek(imageOffset, SeekOrigin.Begin);
+                    }
+
+
+                    if (image.Exif?.Count > 0 && !image.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
                     {
                         // We have EXIF tags to write, and no current ExifIFD pointer
-                        ifd.Tags.Add(new Tag<uint>() { ID = (ushort)PrivateTags.ExifIFD, DataType = TagDataType.Long, Length = 1, Values = new uint[] { 0 } });
+                        image.Tags.Add(new Tag<uint>() { ID = (ushort)PrivateTags.ExifIFD, DataType = TagDataType.Long, Length = 1, Values = new uint[] { 0 } });
                     }
-                    else if ((ifd.Exif?.Count ?? 0) == 0 && ifd.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
+                    else if ((image.Exif?.Count ?? 0) == 0 && image.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
                     {
                         // There are no EXIF tags to write, get rid of the superfluous pointer
-                        ifd.Tags.RemoveAll(t => t.ID == (ushort)Tags.PrivateTags.ExifIFD);
+                        image.Tags.RemoveAll(t => t.ID == (ushort)Tags.PrivateTags.ExifIFD);
                     }
-                    tiffStream.WriteIFD(ifd.Tags);
+                    tiffStream.WriteIFD(image.Tags);
 
                     // write image strip data
-                    tiffStream.WriteStrips(previousOffset, ifd.Strips.ToArray());
-                    tiffStream.UpdateTags(ifd.Tags.Where(t => t.ID == (ushort)BaselineTags.StripByteCounts || t.ID == (ushort)BaselineTags.StripOffsets).ToArray());
+                    tiffStream.WriteStrips(imageOffset, image.Strips.ToArray());
+                    tiffStream.UpdateTags(image.Tags.Where(t => t.ID == (ushort)BaselineTags.StripByteCounts || t.ID == (ushort)BaselineTags.StripOffsets).ToArray());
 
                     // write Exif block, if necessary
-                    if (ifd.Exif?.Count > 0)
+                    if (image.Exif?.Count > 0)
                     {
                         var exifIfdOffset = (uint)tiffStream.Seek(0, SeekOrigin.End);
-                        tiffStream.WriteIFD(ifd.Exif);
-                        var exifTag = ifd.Tags.Where(t => t.ID == (ushort)PrivateTags.ExifIFD).First() as Tag<uint>;
+                        tiffStream.WriteIFD(image.Exif);
+                        var exifTag = image.Tags.Where(t => t.ID == (ushort)PrivateTags.ExifIFD).First() as Tag<uint>;
                         exifTag.Values[0] = exifIfdOffset;
                         tiffStream.UpdateTags(exifTag);
                     }
+
+                    previousOffset = imageOffset;
                 }
 
                 using (var stream = new FileStream(fileName, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read))
@@ -75,9 +112,5 @@ namespace NTiff
                 }
             }
         }
-
-        TiffStreamReader _Stream;
-
-        public List<IFD> IFDs { get; set; } = new List<IFD>();
     }
 }

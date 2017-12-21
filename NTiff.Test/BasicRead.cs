@@ -29,7 +29,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanReadTiffHeader()
         {
-            var stream = new TiffStreamReader("Samples/eagle_cap_lab.tif");
+            var stream = new TiffStreamReader(Samples.LAB);
             var ifd0 = stream.ReadHeader();
             Assert.AreEqual(8u, ifd0);
         }
@@ -37,7 +37,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanReadRawIFD0Tags()
         {
-            var stream = new TiffStreamReader("Samples/eagle_cap_lab.tif");
+            var stream = new TiffStreamReader(Samples.LAB);
             var ifd0 = stream.ReadIFD(stream.ReadHeader());
 
             Assert.AreEqual(23, ifd0.tags.Length);
@@ -47,7 +47,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanParseIFD0Tags()
         {
-            var stream = new TiffStreamReader("Samples/eagle_cap_lab.tif");
+            var stream = new TiffStreamReader(Samples.LAB);
             var ifd0 = stream.ParseIFD(stream.ReadHeader());
 
             Assert.AreEqual("NIKON D90", ifd0.tags[7].GetString());
@@ -58,7 +58,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanReadIFDFromFixedOffset()
         {
-            var stream = new TiffStreamReader("Samples/eagle_cap_lab.tif");
+            var stream = new TiffStreamReader(Samples.LAB);
             var ifd0 = stream.ReadIFD(8);
 
             Assert.AreEqual(23, ifd0.tags.Length);
@@ -67,7 +67,7 @@ namespace NTiff.Test
         [TestMethod]
         public void CanLoadStrips()
         {
-            var stream = new TiffStreamReader("Samples/eagle_cap_lab.tif");
+            var stream = new TiffStreamReader(Samples.LAB);
             var strips = stream.ReadStrips(8);
 
             Assert.AreEqual(1, strips.Length);

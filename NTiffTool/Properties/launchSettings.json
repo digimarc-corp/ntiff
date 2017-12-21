@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NTiffTool": {
+      "commandName": "Project",
+      "commandLineArgs": "compare ../Samples/eagle_cap_lab.tif ../Samples/multipage.tiff"
+    }
+  }
+}
