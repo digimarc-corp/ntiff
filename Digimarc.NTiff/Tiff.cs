@@ -114,7 +114,6 @@ namespace Digimarc.NTiff
 
                 // write image strip data
                 tiffStream.WriteStrips(imageOffset, image.Strips.ToArray());
-                tiffStream.UpdateTags(image.Tags.Where(t => t.ID == (ushort)BaselineTags.StripByteCounts || t.ID == (ushort)BaselineTags.StripOffsets).ToArray());
 
                 // write Exif block, if necessary
                 if (image.Exif?.Count > 0)

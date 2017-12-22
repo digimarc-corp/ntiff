@@ -1,4 +1,5 @@
 ﻿using Digimarc.NTiff;
+using Digimarc.NTiff.Tags;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,58 @@ namespace Digimarc.NTiff.Test
     [TestClass]
     public class TiffWrite
     {
+        [TestMethod]
+        public void CanAddExifToStrippedFile()
+        {
+            var temp = Samples.GetTemp();
+            try
+            {
+                var tiff1 = new Tiff(Samples.LAB);
+                var exif = tiff1.Images[0].Exif;
+
+                var tiff2 = new Tiff(Samples.NoExif);
+                Assert.IsNull(tiff2.Images[0].Exif);
+
+                tiff2.Images[0].Exif = exif;
+                Assert.AreEqual(36, tiff2.Images[0].Exif.Count);
+
+                tiff2.Save(temp);
+
+                var tiff3 = new Tiff(temp);
+                Assert.AreEqual(tiff2.Images[0].Strips[0].GetHash(), tiff3.Images[0].Strips[0].GetHash());
+            }
+            finally
+            {
+                Samples.Cleanup(temp);
+            }
+        }
+
+        [TestMethod]
+        public void CanAddTiffTag()
+        {
+            var tiff1 = new Tiff(Samples.LittleEndian);
+            tiff1.Images[0].Tags.Add(new Tag<byte>()
+            {
+                DataType = TagDataType.Byte,
+                ID = (ushort)PrivateTags.AliasLayerMetadata,
+                Values = Encoding.UTF8.GetBytes("Hello world"),
+                Length = 11
+            });
+            var temp = Samples.GetTemp();
+            try
+            {
+                tiff1.Save(temp);
+
+                var tiff2 = new Tiff(temp);
+                Assert.AreEqual(tiff1.Images[0].Tags.Count, tiff2.Images[0].Tags.Count);
+                Assert.AreEqual(tiff1.Images[0].Strips[0].GetHash(), tiff2.Images[0].Strips[0].GetHash());
+            }
+            finally
+            {
+                Samples.Cleanup(temp);
+            }
+        }
+
         [TestMethod]
         public void CanCombineTiffs()
         {
@@ -32,7 +85,7 @@ namespace Digimarc.NTiff.Test
             }
             finally
             {
-                if (File.Exists(temp)) { File.Delete(temp); }
+                Samples.Cleanup(temp);
             }
         }
 
@@ -85,7 +138,7 @@ namespace Digimarc.NTiff.Test
             }
             finally
             {
-                if (File.Exists(temp)) { File.Delete(temp); }
+                Samples.Cleanup(temp);
             }
         }
     }
