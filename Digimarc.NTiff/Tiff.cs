@@ -21,14 +21,17 @@ namespace Digimarc.NTiff
         /// <param name="fileName"></param>
         public Tiff(string fileName)
         {
-            LoadTiff(fileName);
+            using (var tiffStream = new TiffStreamReader(fileName))
+            {
+                LoadImage(tiffStream);
+            }
         }
 
-        private void LoadTiff(string fileName)
+        public Tiff(Stream stream)
         {
-            using (var stream = new TiffStreamReader(fileName))
+            using (var tiffStream = new TiffStreamReader(stream))
             {
-                LoadImage(stream);
+                LoadImage(tiffStream);
             }
         }
 
