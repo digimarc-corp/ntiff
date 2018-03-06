@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Digimarc.NTiff.Test
@@ -29,6 +30,16 @@ namespace Digimarc.NTiff.Test
             Assert.AreEqual(1, tiff.Images[0].SubImages.Count);
             Assert.AreEqual(1, tiff.Images[0].SubImages[0].Strips.Count);
             Assert.AreEqual(15, tiff.Images[0].SubImages[0].Tags.Count);
+        }
+
+        [TestMethod]
+        public void CanLeaveStreamOpen()
+        {
+            using (var stream = new FileStream(Samples.LittleEndian, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            {
+                var tiff = new Tiff(stream);
+                Assert.IsTrue(stream.CanRead);
+            }
         }
     }
 }
