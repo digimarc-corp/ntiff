@@ -107,11 +107,27 @@ namespace Digimarc.NTiff.Test
             CheckRewrite(Samples.LittleEndian);
         }
 
+        [TestMethod]
+        public void CanWriteStream()
+        {
+            string hash1, hash2;
+            using (var stream = new MemoryStream())
+            {
+                var tiff = new Tiff(Samples.LAB);
+                tiff.Save(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                hash1 = Convert.ToBase64String(System.Security.Cryptography.MD5.Create().ComputeHash(stream));
+            }
+            hash2 = CheckRewrite(Samples.LAB);
+
+            Assert.AreEqual(hash1, hash2);
+        }       
+
         /// <summary>
-        /// Read and parse a sample file from disk, write it back out to a temp file, and verify metadata and properties via NTiff & ImageMagick
+        /// Read and parse a sample file from disk, write it back out to a temp file, and verify metadata and properties via NTiff & ImageMagick. Returns hash of final output.
         /// </summary>
         /// <param name="src"></param>
-        private static void CheckRewrite(string src)
+        private static string CheckRewrite(string src)
         {
             var tiff = new Tiff(src);
             var temp = Samples.GetTemp();
@@ -135,6 +151,8 @@ namespace Digimarc.NTiff.Test
                     if (attr == "date:create" || attr == "date:modify") { continue; }
                     Assert.AreEqual(srcImg.GetAttribute(attr), tempImg.GetAttribute(attr), attr);
                 }
+
+                return Convert.ToBase64String(System.Security.Cryptography.MD5.Create().ComputeHash(File.ReadAllBytes(temp)));
             }
             finally
             {

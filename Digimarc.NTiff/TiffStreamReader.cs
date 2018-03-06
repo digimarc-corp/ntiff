@@ -22,16 +22,6 @@ namespace Digimarc.NTiff
         }
 
         /// <summary>
-        /// Initializes a new read-only TiffStream from the given file.
-        /// </summary>
-        /// <param name="fileName"></param>
-        public TiffStreamReader(string fileName)
-        {
-            _Stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            _IsWritable = false;
-        }
-
-        /// <summary>
         /// Initializes a new TiffStream from the given stream.
         /// </summary>
         /// <param name="stream"></param>

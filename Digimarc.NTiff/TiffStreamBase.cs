@@ -81,7 +81,6 @@ namespace Digimarc.NTiff
             {
                 if (disposing)
                 {
-                    _Stream.Dispose();
                     _Stream = null;
                 }
 

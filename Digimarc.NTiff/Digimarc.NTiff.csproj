@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.3.0</Version>
+    <Version>0.3.2</Version>
     <Company>Digimarc, Inc</Company>
     <Description>.Net native library for reading/writing TIFF metadata, including EXIF tags.</Description>
     <PackageId>Digimarc.NTiff</PackageId>
