@@ -20,9 +20,9 @@ Digimarc.NTiffTool provides a command-line interface for inspecting a TIFF file 
 
 NTiff links to or uses source code from the following projects:
 
-- [Magick.NET](https://github.com/dlemstra/Magick.NET) [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
-- [vstest](https://github.com/microsoft/vstest/) [MIT](https://opensource.org/licenses/MIT)
+- [Magick.NET](https://github.com/dlemstra/Magick.NET) - [Apache-2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
+- [vstest](https://github.com/microsoft/vstest/) - [MIT](https://opensource.org/licenses/MIT)
 
 Sample/test images:
 
-- ["Mirror Lake"](https://www.flickr.com/photos/araddon/3794400754/) [araddon](https://www.flickr.com/people/araddon/) [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
+- ["Mirror Lake"](https://www.flickr.com/photos/araddon/3794400754/) - [araddon](https://www.flickr.com/people/araddon/) - [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/)
