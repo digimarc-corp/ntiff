@@ -20,6 +20,7 @@ jobs:
     continueOnError: true
   - task: PublishTestResults@2
     inputs:
+      testRunTitle: Linux Tests
       testResultsFormat: 'VSTest' 
       testResultsFiles: 'Digimarc.NTiff.Test/TestResults/*.trx' 
 - job: Windows
@@ -35,5 +36,22 @@ jobs:
     continueOnError: true
   - task: PublishTestResults@2
     inputs:
+      testRunTitle: Windows Tests
+      testResultsFormat: 'VSTest' 
+      testResultsFiles: 'Digimarc.NTiff.Test/TestResults/*.trx' 
+- job: Mac
+  pool:
+    vmImage: 'macOS-10.13'
+  variables:
+    buildConfiguration: 'Release'
+  steps:
+  - script: dotnet build --configuration $(buildConfiguration)
+    displayName: Build project
+  - script: dotnet test Digimarc.NTiff.Test --logger "trx;LogFileName=results.trx"
+    displayName: Run tests
+    continueOnError: true
+  - task: PublishTestResults@2
+    inputs:
+      testRunTitle: Windows Tests
       testResultsFormat: 'VSTest' 
       testResultsFiles: 'Digimarc.NTiff.Test/TestResults/*.trx' 
