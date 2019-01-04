@@ -22,7 +22,6 @@ jobs:
     inputs:
       testResultsFormat: 'VSTest' 
       testResultsFiles: 'Digimarc.NTiff.Test/TestResults/*.trx' 
- 
 - job: Windows
   pool:
     vmImage: 'vs2017-win2016'
@@ -30,4 +29,11 @@ jobs:
     buildConfiguration: 'Release'
   steps:
   - script: dotnet build --configuration $(buildConfiguration)
-    displayName: 'dotnet build $(buildConfiguration)'
+    displayName: Build project
+  - script: dotnet test Digimarc.NTiff.Test --logger "trx;LogFileName=results.trx"
+    displayName: Run tests
+    continueOnError: true
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'VSTest' 
+      testResultsFiles: 'Digimarc.NTiff.Test/TestResults/*.trx' 
