@@ -13,9 +13,9 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
-  - script: |
-      dotnet build --configuration $(buildConfiguration)
-      dotnet test Digimarc.NTiff.Test --logger "trx;LogFileName=results.trx"
+  - script: dotnet build --configuration $(buildConfiguration)
+  - script: dotnet test Digimarc.NTiff.Test --logger "trx;LogFileName=results.trx"
+    continueOnError: true
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'VSTest' 
