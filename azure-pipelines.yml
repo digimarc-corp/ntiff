@@ -6,12 +6,20 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'Ubuntu-16.04'
-
-variables:
-  buildConfiguration: 'Release'
-
-steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+jobs:
+- job: Linux
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    variables:
+      buildConfiguration: 'Release'
+    steps:
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'dotnet build $(buildConfiguration)'
+- job: Windows
+    pool:
+      vmImage: 'vs2017-win2016'
+    variables:
+      buildConfiguration: 'Release'
+    steps:
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'dotnet build $(buildConfiguration)'
