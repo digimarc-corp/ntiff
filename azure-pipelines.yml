@@ -14,11 +14,17 @@ jobs:
   variables:
     buildConfiguration: 'Release'
   steps:
-  - script: dotnet build --configuration $(buildConfiguration)
+  - script: |
+      dotnet build --configuration $(buildConfiguration)
+      cp ./Digimarc.NTiff/bin/$(buildConfiguration)/*.nupkg $(Build.ArtifactStagingDirectory)
     displayName: Build project
   - script: dotnet test Digimarc.NTiff.Test --logger "trx;LogFileName=results.trx"
     displayName: Run tests
     continueOnError: true
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+      artifactName: 'nupkg'
   - task: PublishTestResults@2
     inputs:
       testRunTitle: Linux Tests
