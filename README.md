@@ -1,6 +1,6 @@
 # NTiff
 
-[![Build Status](https://dev.azure.com/superstator/ntiff/_apis/build/status/digimarc-corp.ntiff?branchName=master)](https://dev.azure.com/superstator/ntiff/_build/latest?definitionId=1?branchName=master)
+[![Build Status](https://dev.azure.com/superstator/ntiff/_apis/build/status/digimarc-corp.ntiff?branchName=master)](https://dev.azure.com/superstator/ntiff/_build/latest?definitionId=1?branchName=master) ![Nuget Version](https://img.shields.io/nuget/v/Digimarc.NTiff.svg)
 
 NTiff is a .NET Standard 2.0 native library for TIFF files. It is a clean rewrite based on the Adobe TIFF 6.0 specification and addenda, intended to avoid issues with metadata and extended tags that exist in `libtiff` and it's derivatives.
 
