@@ -6,7 +6,7 @@
     <Version>0.3.3</Version>
     <Company>Digimarc, Inc</Company>
     <Copyright>2018-2019 Digimarc, Inc</Copyright>
-    <PackageLicense>Apache-2.0</PackageLicense>
+    <License>Apache-2.0</License>
     <PackageProjectUrl>https://github.com/digimarc-corp/ntiff</PackageProjectUrl>
     <PackageTags>tiff</PackageTags>
     <Description>.Net native library for reading/writing TIFF metadata, including EXIF tags.</Description>
