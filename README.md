@@ -46,7 +46,7 @@ var tag = new Tag<char>() {
     Length = (uint)payload.Length + 1
 };
 
-var tiff = new Tiff(@"my_file.tiff");
+var tiff = new Tiff("my_file.tiff");
 tiff.Images[0].Tags.Add(tag);
 
 using (var stream = new MemoryStream()){
@@ -55,6 +55,7 @@ using (var stream = new MemoryStream()){
     var newtiff = new Tiff(stream);
 }
 ```
+
 *todo: examples for complex operations like custom IFDs or image strip manipulation*
 
 ## Build
