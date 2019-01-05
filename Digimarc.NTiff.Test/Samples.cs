@@ -19,7 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using Digimarc.NTiff.Tags;
+using Digimarc.NTiff.Types;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Digimarc.NTiff.Test
 {
@@ -30,8 +34,58 @@ namespace Digimarc.NTiff.Test
         public const string Pyramid = "../../../../Samples/eagle_cap_pyramid.tif";
         public const string LZW = "../../../../Samples/eagle_cap_lzw.tif";
         public const string NoExif = "../../../../Samples/eagle_cap_noexif.tif";
+        public const string Alpha = "../../../../Samples/eagle_cap_rgba.tif";
 
         public static string GetTemp() { return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".tiff"); }
         public static void Cleanup(string filename) { try { if (File.Exists(filename)) File.Delete(filename); } catch { } }
+    }
+
+    // Runable/testable versions of sample code from README
+    [TestClass]
+    public class SampleTests
+    {
+
+        [TestMethod]
+        public void ReadStandardTag()
+        {
+            var tiff = new Tiff(Samples.Alpha);
+            var make = tiff.Images[0].Tags.Where(t => t.ID == (ushort)Tags.BaselineTags.Make).First().GetString();
+            Assert.AreEqual(make.ToString(), "NIKON CORPORATION");
+        }
+
+        [TestMethod]
+        public void ReadExifTag()
+        {
+            var tiff = new Tiff(Samples.Alpha);
+            var tag = tiff.Images[0].Exif.Where(t => t.ID == (ushort)Tags.ExifTags.FocalLength).First();
+            Assert.AreEqual(tag.ToString(), "FocalLength:Rational:1:18/1");
+            var rational = tag.GetValue<Rational>(0);
+            var dbl = rational.ToDouble();
+        }
+
+        [TestMethod]
+        public void WritePrivateTag()
+        {
+            var payload = "some xml";
+
+            // turn a .NET string into a nul-terminated ASCII character array
+            var tag = new Tag<char>()
+            {
+                DataType = TagDataType.ASCII,
+                ID = (ushort)PrivateTags.GDAL_METADATA,
+                Values = payload.ToASCIIArray(),
+                Length = (uint)payload.Length + 1 // nul terminated
+            };
+
+            var tiff = new Tiff(Samples.LittleEndian);
+            tiff.Images[0].Tags.Add(tag);
+
+            using (var stream = new MemoryStream())
+            {
+                tiff.Save(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                var newtiff = new Tiff(stream);
+            }
+        }
     }
 }
