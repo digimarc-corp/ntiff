@@ -5,11 +5,11 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>0.3.4</Version>
     <Company>Digimarc, Inc</Company>
-    <Copyright>2018-2019 Digimarc, Inc</Copyright>
+    <Copyright>Digimarc, Inc</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/digimarc-corp/ntiff</PackageProjectUrl>
     <PackageTags>tiff tif libtiff exif exiftool</PackageTags>
-    <Description>.Net native library for reading/writing TIFF metadata, including EXIF tags.</Description>
+    <Description>.Net native library for reading/writing TIFF metadata including baseline, EXIF, private, or extended tags.</Description>
     <PackageId>Digimarc.NTiff</PackageId>
     <Authors>Digimarc</Authors>
     <AssemblyName>Digimarc.NTiff</AssemblyName>
