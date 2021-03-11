@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.3.3</Version>
+    <Version>0.3.4</Version>
     <Company>Digimarc, Inc</Company>
     <Copyright>2018-2019 Digimarc, Inc</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
