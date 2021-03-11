@@ -23,47 +23,47 @@ using System.Linq;
 using System.Text;
 using Digimarc.NTiff.Tags;
 using Digimarc.NTiff.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Digimarc.NTiff.Test
 {
-    public static class Samples
+    public static class SamplesList
     {
-        public const string LAB = "../../../../Samples/eagle_cap_lab.tif";
-        public const string LittleEndian = "../../../../Samples/eagle_cap_le.tif";
-        public const string Pyramid = "../../../../Samples/eagle_cap_pyramid.tif";
-        public const string LZW = "../../../../Samples/eagle_cap_lzw.tif";
-        public const string NoExif = "../../../../Samples/eagle_cap_noexif.tif";
-        public const string Alpha = "../../../../Samples/eagle_cap_rgba.tif";
+        public const string LAB = "Samples/eagle_cap_lab.tif";
+        public const string LittleEndian = "Samples/eagle_cap_le.tif";
+        public const string Pyramid = "Samples/eagle_cap_pyramid.tif";
+        public const string LZW = "Samples/eagle_cap_lzw.tif";
+        public const string NoExif = "Samples/eagle_cap_noexif.tif";
+        public const string Alpha = "Samples/eagle_cap_rgba.tif";
+        public const string Bilevel = "Samples/1bit.tif";
 
         public static string GetTemp() { return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".tiff"); }
         public static void Cleanup(string filename) { try { if (File.Exists(filename)) File.Delete(filename); } catch { } }
     }
 
     // Runable/testable versions of sample code from README
-    [TestClass]
     public class SampleTests
     {
 
-        [TestMethod]
+        [Fact]
         public void ReadStandardTag()
         {
-            var tiff = new Tiff(Samples.Alpha);
+            var tiff = new Tiff(SamplesList.Alpha);
             var make = tiff.Images[0].Tags.Where(t => t.ID == (ushort)Tags.BaselineTags.Make).First().GetString();
-            Assert.AreEqual(make.ToString(), "NIKON CORPORATION");
+            Assert.Equal("NIKON CORPORATION", make.ToString());
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadExifTag()
         {
-            var tiff = new Tiff(Samples.Alpha);
+            var tiff = new Tiff(SamplesList.Alpha);
             var tag = tiff.Images[0].Exif.Where(t => t.ID == (ushort)Tags.ExifTags.FocalLength).First();
-            Assert.AreEqual(tag.ToString(), "FocalLength:Rational:1:18/1");
+            Assert.Equal("FocalLength:Rational:1:18/1", tag.ToString());
             var rational = tag.GetValue<Rational>(0);
             var dbl = rational.ToDouble();
         }
 
-        [TestMethod]
+        [Fact]
         public void WritePrivateTag()
         {
             var payload = "some xml";
@@ -77,7 +77,7 @@ namespace Digimarc.NTiff.Test
                 Length = (uint)payload.Length + 1 // nul terminated
             };
 
-            var tiff = new Tiff(Samples.LittleEndian);
+            var tiff = new Tiff(SamplesList.LittleEndian);
             tiff.Images[0].Tags.Add(tag);
 
             using (var stream = new MemoryStream())

@@ -17,30 +17,29 @@
 */
 
 using Digimarc.NTiff;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Xunit;
 
 namespace Digimarc.NTiff.Test
 {
-    [TestClass]
     public class ExifIO
     {
-        [TestMethod]
+        [Fact]
         public void CanReadExifBlock()
         {
-            using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var stream = new FileStream(SamplesList.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
 
                 var tiffStream = new TiffStreamReader(stream);
                 var exif = tiffStream.ParseIFD(2991224);
 
-                Assert.AreEqual(36, exif.tags.Length);
-                Assert.AreEqual(0u, exif.nextIfd);
-                Assert.AreEqual((short)400, exif.tags.Where(t => t.ID == (ushort)Tags.ExifTags.ISOSpeedRatings).First().GetValue<short>(0));
+                Assert.Equal(36, exif.tags.Length);
+                Assert.Equal(0u, exif.nextIfd);
+                Assert.Equal((short)400, exif.tags.Where(t => t.ID == (ushort)Tags.ExifTags.ISOSpeedRatings).First().GetValue<short>(0));
             }
         }
     }

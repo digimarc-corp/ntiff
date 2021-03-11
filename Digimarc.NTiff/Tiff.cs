@@ -104,47 +104,72 @@ namespace Digimarc.NTiff
             }
         }
 
+        /// <summary>
+        /// Advance the stream to a new word boundary, padding if necessary
+        /// </summary>
+        /// <param name="tiffStream"></param>
+        /// <returns></returns>
+        static uint SeekToNewWord(TiffStreamWriter tiffStream)
+        {
+            var offset = (uint)tiffStream.SeekWord(0, SeekOrigin.End);
+            if (offset % 2 > 0) { tiffStream.WriteByte(0x00); offset++; } // advance if not on word boundary
+            return offset;
+        }
+
+        uint WriteImage(Image image, TiffStreamWriter tiffStream)
+        {
+            if (image.SubImages.Count > 0)
+            {
+                throw new TiffWriteException("Writing pyramid/subimage files is not currently supported");
+            }
+
+            var imageOffset = SeekToNewWord(tiffStream);
+
+            // prep the current set of tags, and write the initial IFD
+            if (image.Exif?.Count > 0 && !image.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
+            {
+                // We have EXIF tags to write, and no current ExifIFD pointer
+                image.Tags.Add(new Tag<uint>() { ID = (ushort)PrivateTags.ExifIFD, DataType = TagDataType.Long, Length = 1, Values = new uint[] { 0 } });
+            }
+            else if ((image.Exif?.Count ?? 0) == 0 && image.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
+            {
+                // There are no EXIF tags to write, get rid of the superfluous pointer
+                image.Tags.RemoveAll(t => t.ID == (ushort)Tags.PrivateTags.ExifIFD);
+            }
+            tiffStream.WriteIFD(image.Tags);
+
+            // write image strip data
+            tiffStream.WriteStrips(imageOffset, image.Strips.ToArray());
+
+
+            // write Exif block, if necessary, and update the original tag pointer
+            if (image.Exif?.Count > 0)
+            {
+                var exifIfdOffset = SeekToNewWord(tiffStream);
+                tiffStream.WriteIFD(image.Exif);
+                var exifTag = image.Tags.Where(t => t.ID == (ushort)PrivateTags.ExifIFD).First() as Tag<uint>;
+                exifTag.Values[0] = exifIfdOffset;
+                tiffStream.UpdateTags(exifTag);
+            }
+
+            return imageOffset;
+        }
+
         void WriteTo(TiffStreamWriter tiffStream)
         {
             tiffStream.WriteHeader();
-            tiffStream.WriteDWord(8); // IFD0 will always be immediately after the header
+            tiffStream.WriteDWord(8); // IFD0 will always be immediately after the header, at offset 0x08
             uint previousOffset = 0;
 
             foreach (var image in Images)
             {
-                var imageOffset = (uint)tiffStream.SeekWord(0, SeekOrigin.End);
+                var imageOffset = WriteImage(image, tiffStream);
 
-                // update the pointer from the previous image
+                // update the pointer from the previous image, then seek back to the current offset
                 if (previousOffset != 0)
                 {
                     tiffStream.UpdateIFDPointer(previousOffset, imageOffset);
                     tiffStream.Seek(imageOffset, SeekOrigin.Begin);
-                }
-
-
-                if (image.Exif?.Count > 0 && !image.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
-                {
-                    // We have EXIF tags to write, and no current ExifIFD pointer
-                    image.Tags.Add(new Tag<uint>() { ID = (ushort)PrivateTags.ExifIFD, DataType = TagDataType.Long, Length = 1, Values = new uint[] { 0 } });
-                }
-                else if ((image.Exif?.Count ?? 0) == 0 && image.Tags.Any(t => t.ID == (ushort)PrivateTags.ExifIFD))
-                {
-                    // There are no EXIF tags to write, get rid of the superfluous pointer
-                    image.Tags.RemoveAll(t => t.ID == (ushort)Tags.PrivateTags.ExifIFD);
-                }
-                tiffStream.WriteIFD(image.Tags);
-
-                // write image strip data
-                tiffStream.WriteStrips(imageOffset, image.Strips.ToArray());
-
-                // write Exif block, if necessary
-                if (image.Exif?.Count > 0)
-                {
-                    var exifIfdOffset = (uint)tiffStream.Seek(0, SeekOrigin.End);
-                    tiffStream.WriteIFD(image.Exif);
-                    var exifTag = image.Tags.Where(t => t.ID == (ushort)PrivateTags.ExifIFD).First() as Tag<uint>;
-                    exifTag.Values[0] = exifIfdOffset;
-                    tiffStream.UpdateTags(exifTag);
                 }
 
                 previousOffset = imageOffset;
