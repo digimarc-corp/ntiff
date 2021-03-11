@@ -16,20 +16,19 @@
    SPDX-License-Identifier: Apache-2.0
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Digimarc.NTiff.Tags;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Digimarc.NTiff;
+using Xunit;
 
 namespace Digimarc.NTiff.Test
 {
-    [TestClass]
     public class BasicWrite
     {
-        [TestMethod]
+        [Fact]
         public void CanWriteTagPlaceholder()
         {
             var tag = new Tag
@@ -44,7 +43,7 @@ namespace Digimarc.NTiff.Test
                 stream.WriteTagPlaceholder(tag);
 
                 var data = stream.ToArray();
-                Assert.IsTrue(data.SequenceEqual(new byte[] { 0x02, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
+                Assert.True(data.SequenceEqual(new byte[] { 0x02, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
             }
 
             using (var stream = new TiffStreamWriter(forceBigEndian: true))
@@ -52,11 +51,11 @@ namespace Digimarc.NTiff.Test
                 stream.WriteTagPlaceholder(tag);
 
                 var data = stream.ToArray();
-                Assert.IsTrue(data.SequenceEqual(new byte[] { 0x01, 0x02, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 }));
+                Assert.True(data.SequenceEqual(new byte[] { 0x01, 0x02, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00 }));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WriteTagPlaceholderUpdatesOffset()
         {
             var tag = new Tag
@@ -71,20 +70,20 @@ namespace Digimarc.NTiff.Test
                 stream.WriteTagPlaceholder(tag);
                 stream.WriteTagPlaceholder(tag);
 
-                Assert.AreEqual(24, stream.Length);
-                Assert.AreEqual(12u, tag.Offset);
+                Assert.Equal(24, stream.Length);
+                Assert.Equal(12u, tag.Offset);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void MyTestMethod()
         {
             char x = 'A';
             var b = (byte)(char)(object)x;
-            Assert.IsTrue(b < 127);
+            Assert.True(b < 127);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanFinalizeShortTag()
         {
             var artist = "Bob";
@@ -104,16 +103,16 @@ namespace Digimarc.NTiff.Test
 
                 var data = stream.ToArray();
 
-                Assert.AreEqual(4u, tag.Offset);
-                Assert.AreEqual(4u, tag.Length);
-                Assert.AreEqual(16, data.Length);
-                Assert.AreEqual(artist, Encoding.ASCII.GetString(tag.RawValue).Trim('\0'));
+                Assert.Equal(4u, tag.Offset);
+                Assert.Equal(4u, tag.Length);
+                Assert.Equal(16, data.Length);
+                Assert.Equal(artist, Encoding.ASCII.GetString(tag.RawValue).Trim('\0'));
             }
         }
 
 
 
-        [TestMethod]
+        [Fact]
         public void CanFinalizeLongTag()
         {
             var artist = "Ansel Adams";
@@ -133,14 +132,14 @@ namespace Digimarc.NTiff.Test
 
                 var data = stream.ToArray();
 
-                Assert.AreEqual(4u, tag.Offset);
-                Assert.AreEqual(12u, tag.Length);
-                Assert.AreEqual(28, data.Length);
-                Assert.IsTrue(tag.RawValue.SequenceEqual(BitConverter.GetBytes(16u)));
+                Assert.Equal(4u, tag.Offset);
+                Assert.Equal(12u, tag.Length);
+                Assert.Equal(28, data.Length);
+                Assert.True(tag.RawValue.SequenceEqual(BitConverter.GetBytes(16u)));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanWriteWord()
         {
             using (var stream = new TiffStreamWriter())
@@ -148,7 +147,7 @@ namespace Digimarc.NTiff.Test
                 stream.WriteWord(42);
 
                 var data = stream.ToArray();
-                Assert.IsTrue(data.SequenceEqual(new byte[] { 0x2a, 0x00 }));
+                Assert.True(data.SequenceEqual(new byte[] { 0x2a, 0x00 }));
             }
 
             using (var stream = new TiffStreamWriter(forceBigEndian: true))
@@ -156,11 +155,11 @@ namespace Digimarc.NTiff.Test
                 stream.WriteWord(42);
 
                 var data = stream.ToArray();
-                Assert.IsTrue(data.SequenceEqual(new byte[] { 0x00, 0x2a }));
+                Assert.True(data.SequenceEqual(new byte[] { 0x00, 0x2a }));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanWriteDWord()
         {
             using (var stream = new TiffStreamWriter())
@@ -168,7 +167,7 @@ namespace Digimarc.NTiff.Test
                 stream.WriteDWord(42);
 
                 var data = stream.ToArray();
-                Assert.IsTrue(data.SequenceEqual(new byte[] { 0x2a, 0x00, 0x00, 0x00 }));
+                Assert.True(data.SequenceEqual(new byte[] { 0x2a, 0x00, 0x00, 0x00 }));
             }
 
             using (var stream = new TiffStreamWriter(forceBigEndian: true))
@@ -176,11 +175,11 @@ namespace Digimarc.NTiff.Test
                 stream.WriteDWord(42);
 
                 var data = stream.ToArray();
-                Assert.IsTrue(data.SequenceEqual(new byte[] { 0x00, 0x00, 0x00, 0x2a }));
+                Assert.True(data.SequenceEqual(new byte[] { 0x00, 0x00, 0x00, 0x2a }));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanWriteHeader()
         {
             using (var stream = new TiffStreamWriter())
@@ -188,7 +187,7 @@ namespace Digimarc.NTiff.Test
                 stream.WriteHeader();
 
                 var header = stream.ToArray();
-                Assert.IsTrue(header.SequenceEqual(new byte[] { 0x49, 0x49, 0x2a, 0x00 }));
+                Assert.True(header.SequenceEqual(new byte[] { 0x49, 0x49, 0x2a, 0x00 }));
             }
 
             using (var stream = new TiffStreamWriter(forceBigEndian: true))
@@ -196,7 +195,7 @@ namespace Digimarc.NTiff.Test
                 stream.WriteHeader();
 
                 var header = stream.ToArray();
-                Assert.IsTrue(header.SequenceEqual(new byte[] { 0x4d, 0x4d, 0x00, 0x2a }));
+                Assert.True(header.SequenceEqual(new byte[] { 0x4d, 0x4d, 0x00, 0x2a }));
             }
         }
     }

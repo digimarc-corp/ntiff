@@ -5,12 +5,13 @@
 
 trigger:
 - master
+- develop
 - release/*
 
 jobs:
 - job: Linux
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: 'Ubuntu-20.04'
   variables:
     buildConfiguration: 'Release'
   steps:
@@ -48,7 +49,7 @@ jobs:
       testResultsFiles: 'Digimarc.NTiff.Test/TestResults/*.trx' 
 - job: Mac
   pool:
-    vmImage: 'macOS-10.13'
+    vmImage: 'macOS-10.15'
   variables:
     buildConfiguration: 'Release'
   steps:
