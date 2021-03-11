@@ -32,13 +32,13 @@ namespace Digimarc.NTiff.Test
         [Fact]
         public void CanAddExifToStrippedFile()
         {
-            var temp = Samples.GetTemp();
+            var temp = SamplesList.GetTemp();
             try
             {
-                var tiff1 = new Tiff(Samples.LAB);
+                var tiff1 = new Tiff(SamplesList.LAB);
                 var exif = tiff1.Images[0].Exif;
 
-                var tiff2 = new Tiff(Samples.NoExif);
+                var tiff2 = new Tiff(SamplesList.NoExif);
                 Assert.Null(tiff2.Images[0].Exif);
 
                 tiff2.Images[0].Exif = exif;
@@ -51,14 +51,14 @@ namespace Digimarc.NTiff.Test
             }
             finally
             {
-                Samples.Cleanup(temp);
+                SamplesList.Cleanup(temp);
             }
         }
 
         [Fact]
         public void CanAddTiffTag()
         {
-            var tiff1 = new Tiff(Samples.LittleEndian);
+            var tiff1 = new Tiff(SamplesList.LittleEndian);
             tiff1.Images[0].Tags.Add(new Tag<byte>()
             {
                 DataType = TagDataType.Byte,
@@ -66,7 +66,7 @@ namespace Digimarc.NTiff.Test
                 Values = Encoding.UTF8.GetBytes("Hello world"),
                 Length = 11
             });
-            var temp = Samples.GetTemp();
+            var temp = SamplesList.GetTemp();
             try
             {
                 tiff1.Save(temp);
@@ -77,17 +77,17 @@ namespace Digimarc.NTiff.Test
             }
             finally
             {
-                Samples.Cleanup(temp);
+                SamplesList.Cleanup(temp);
             }
         }
 
         [Fact]
         public void CanCombineTiffs()
         {
-            var tiff1 = new Tiff(Samples.LittleEndian);
-            var tiff2 = new Tiff(Samples.LZW);
+            var tiff1 = new Tiff(SamplesList.LittleEndian);
+            var tiff2 = new Tiff(SamplesList.LZW);
             Assert.Equal(tiff1.IsBigEndian, tiff2.IsBigEndian);
-            var temp = Samples.GetTemp();
+            var temp = SamplesList.GetTemp();
             try
             {
                 var tempTiff = new Tiff();
@@ -102,27 +102,19 @@ namespace Digimarc.NTiff.Test
             }
             finally
             {
-                Samples.Cleanup(temp);
+                SamplesList.Cleanup(temp);
             }
         }
 
-        [Fact]
-        public void CanReWritePyramid()
-        {
-            CheckRewrite(Samples.Pyramid);
-        }
+        [Theory]
+        [InlineData(SamplesList.LAB)]
+        [InlineData(SamplesList.LittleEndian)]
+        [InlineData(SamplesList.Bilevel)]
+        public void CanRewrite(string filename) => CheckRewrite(filename);
 
-        [Fact]
-        public void CanReWriteTiff()
-        {
-            CheckRewrite(Samples.LAB);
-        }
-
-        [Fact]
-        public void CanReWriteLittleEndianTiff()
-        {
-            CheckRewrite(Samples.LittleEndian);
-        }
+        [Theory]
+        [InlineData(SamplesList.Pyramid)]
+        public void ThrowsOnUnsupportedWrite(string filename) => Assert.Throws<TiffWriteException>(() => CheckRewrite(filename));
 
         [Fact]
         public void CanWriteStream()
@@ -130,15 +122,15 @@ namespace Digimarc.NTiff.Test
             string hash1, hash2;
             using (var stream = new MemoryStream())
             {
-                var tiff = new Tiff(Samples.LAB);
+                var tiff = new Tiff(SamplesList.LAB);
                 tiff.Save(stream);
                 stream.Seek(0, SeekOrigin.Begin);
                 hash1 = Convert.ToBase64String(System.Security.Cryptography.MD5.Create().ComputeHash(stream));
             }
-            hash2 = CheckRewrite(Samples.LAB);
+            hash2 = CheckRewrite(SamplesList.LAB);
 
             Assert.Equal(hash1, hash2);
-        }       
+        }
 
         /// <summary>
         /// Read and parse a sample file from disk, write it back out to a temp file, and verify metadata and properties via NTiff & ImageMagick. Returns hash of final output.
@@ -147,10 +139,14 @@ namespace Digimarc.NTiff.Test
         private static string CheckRewrite(string src)
         {
             var tiff = new Tiff(src);
-            var temp = Samples.GetTemp();
+            var temp = SamplesList.GetTemp();
             try
             {
                 tiff.Save(temp);
+
+                var newImg = new Tiff(temp);
+                Assert.Equal(tiff.Images[0].Tags.Count, newImg.Images[0].Tags.Count);
+                Assert.Equal(tiff.Images[0].Exif.Count, newImg.Images[0].Exif.Count);
 
                 // Load source and temp in ImageMagick and compare properties
                 var srcImg = new ImageMagick.MagickImage(src);
@@ -173,7 +169,7 @@ namespace Digimarc.NTiff.Test
             }
             finally
             {
-                Samples.Cleanup(temp);
+                SamplesList.Cleanup(temp);
             }
         }
     }

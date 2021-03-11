@@ -31,7 +31,7 @@ namespace Digimarc.NTiff.Test
         [Fact]
         public void CanReadExifBlock()
         {
-            using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var stream = new FileStream(SamplesList.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
 
                 var tiffStream = new TiffStreamReader(stream);

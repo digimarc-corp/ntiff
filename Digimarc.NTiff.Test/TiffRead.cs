@@ -30,7 +30,7 @@ namespace Digimarc.NTiff.Test
         [Fact]
         public void CanLoadTiff()
         {
-            var tiff = new Tiff(Samples.LAB);
+            var tiff = new Tiff(SamplesList.LAB);
 
             Assert.Equal(1, tiff.Images.Count);
             Assert.Equal(23, tiff.Images[0].Tags.Count);
@@ -41,7 +41,7 @@ namespace Digimarc.NTiff.Test
         [Fact]
         public void CanLoadPyramid()
         {
-            var tiff = new Tiff(Samples.Pyramid);
+            var tiff = new Tiff(SamplesList.Pyramid);
 
             Assert.Equal(1, tiff.Images.Count);
             Assert.Equal(1, tiff.Images[0].SubImages.Count);
@@ -52,7 +52,7 @@ namespace Digimarc.NTiff.Test
         [Fact]
         public void CanLeaveStreamOpen()
         {
-            using (var stream = new FileStream(Samples.LittleEndian, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            using (var stream = new FileStream(SamplesList.LittleEndian, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var tiff = new Tiff(stream);
                 Assert.True(stream.CanRead);
