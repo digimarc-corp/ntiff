@@ -23,7 +23,7 @@ using System.Linq;
 using System.Text;
 using Digimarc.NTiff.Tags;
 using Digimarc.NTiff.Types;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Digimarc.NTiff.Test
 {
@@ -41,29 +41,28 @@ namespace Digimarc.NTiff.Test
     }
 
     // Runable/testable versions of sample code from README
-    [TestClass]
     public class SampleTests
     {
 
-        [TestMethod]
+        [Fact]
         public void ReadStandardTag()
         {
             var tiff = new Tiff(Samples.Alpha);
             var make = tiff.Images[0].Tags.Where(t => t.ID == (ushort)Tags.BaselineTags.Make).First().GetString();
-            Assert.AreEqual(make.ToString(), "NIKON CORPORATION");
+            Assert.Equal(make.ToString(), "NIKON CORPORATION");
         }
 
-        [TestMethod]
+        [Fact]
         public void ReadExifTag()
         {
             var tiff = new Tiff(Samples.Alpha);
             var tag = tiff.Images[0].Exif.Where(t => t.ID == (ushort)Tags.ExifTags.FocalLength).First();
-            Assert.AreEqual(tag.ToString(), "FocalLength:Rational:1:18/1");
+            Assert.Equal(tag.ToString(), "FocalLength:Rational:1:18/1");
             var rational = tag.GetValue<Rational>(0);
             var dbl = rational.ToDouble();
         }
 
-        [TestMethod]
+        [Fact]
         public void WritePrivateTag()
         {
             var payload = "some xml";

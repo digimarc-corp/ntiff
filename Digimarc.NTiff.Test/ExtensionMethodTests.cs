@@ -16,14 +16,13 @@
    SPDX-License-Identifier: Apache-2.0
 */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Xunit;
 
 namespace Digimarc.NTiff.Test
 {
-    [TestClass]
     public class ExtensionMethodTests
     {
     }

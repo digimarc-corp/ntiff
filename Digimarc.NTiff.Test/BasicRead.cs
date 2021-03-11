@@ -18,17 +18,16 @@
 
 using Digimarc.NTiff;
 using Digimarc.NTiff.Tags;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Linq;
+using Xunit;
 
 namespace Digimarc.NTiff.Test
 {
-    [TestClass]
     public class BasicRead
     {
-        [TestMethod]
+        [Fact]
         public void CanGetTagAsString()
         {
             var tag = new Tag<char>
@@ -43,21 +42,21 @@ namespace Digimarc.NTiff.Test
 
             var str = tag.ToString();
 
-            Assert.AreEqual("Make:ASCII:6:Nikon", str);
+            Assert.Equal("Make:ASCII:6:Nikon", str);
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadTiffHeader()
         {
             using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var tiffStream = new TiffStreamReader(stream);
                 var ifd0 = tiffStream.ReadHeader();
-                Assert.AreEqual(8u, ifd0);
+                Assert.Equal(8u, ifd0);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadRawIFD0Tags()
         {
             using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -65,12 +64,12 @@ namespace Digimarc.NTiff.Test
                 var tiffStream = new TiffStreamReader(stream);
                 var ifd0 = tiffStream.ReadIFD(tiffStream.ReadHeader());
 
-                Assert.AreEqual(23, ifd0.tags.Length);
-                Assert.AreEqual(0u, ifd0.nextIfd);
+                Assert.Equal(23, ifd0.tags.Length);
+                Assert.Equal(0u, ifd0.nextIfd);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanParseIFD0Tags()
         {
             using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -78,13 +77,13 @@ namespace Digimarc.NTiff.Test
                 var tiffStream = new TiffStreamReader(stream);
                 var ifd0 = tiffStream.ParseIFD(tiffStream.ReadHeader());
 
-                Assert.AreEqual("NIKON D90", ifd0.tags[7].GetString());
-                Assert.AreEqual(8, ifd0.tags[3].GetValue<short>(2));
-                Assert.AreEqual(2991224u, ifd0.tags[22].GetValue<uint>(0));
+                Assert.Equal("NIKON D90", ifd0.tags[7].GetString());
+                Assert.Equal(8, ifd0.tags[3].GetValue<short>(2));
+                Assert.Equal(2991224u, ifd0.tags[22].GetValue<uint>(0));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanReadIFDFromFixedOffset()
         {
             using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -92,11 +91,11 @@ namespace Digimarc.NTiff.Test
                 var tiffStream = new TiffStreamReader(stream);
                 var ifd0 = tiffStream.ReadIFD(8);
 
-                Assert.AreEqual(23, ifd0.tags.Length);
+                Assert.Equal(23, ifd0.tags.Length);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void CanLoadStrips()
         {
             using (var stream = new FileStream(Samples.LAB, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -104,8 +103,8 @@ namespace Digimarc.NTiff.Test
                 var tiffStream = new TiffStreamReader(stream);
                 var strips = tiffStream.ReadStrips(8);
 
-                Assert.AreEqual(1, strips.Length);
-                Assert.AreEqual(2965650, strips[0].ImageData.Length);
+                Assert.Equal(1, strips.Length);
+                Assert.Equal(2965650, strips[0].ImageData.Length);
             }
         }
     }
