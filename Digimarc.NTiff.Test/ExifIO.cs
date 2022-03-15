@@ -39,7 +39,7 @@ namespace Digimarc.NTiff.Test
 
                 Assert.Equal(36, exif.tags.Length);
                 Assert.Equal(0u, exif.nextIfd);
-                Assert.Equal((short)400, exif.tags.Where(t => t.ID == (ushort)Tags.ExifTags.ISOSpeedRatings).First().GetValue<short>(0));
+                Assert.Equal((ushort)400, exif.tags.Where(t => t.ID == (ushort)Tags.ExifTags.ISOSpeedRatings).First().GetValue<ushort>(0));
             }
         }
     }

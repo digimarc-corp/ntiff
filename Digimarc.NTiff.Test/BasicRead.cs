@@ -85,7 +85,7 @@ namespace Digimarc.NTiff.Test
                 var ifd0 = tiffStream.ParseIFD(tiffStream.ReadHeader());
 
                 Assert.Equal("NIKON D90", ifd0.tags[7].GetString());
-                Assert.Equal(8, ifd0.tags[3].GetValue<short>(2));
+                Assert.Equal((ushort)8, ifd0.tags[3].GetValue<ushort>(2));
                 Assert.Equal(2991224u, ifd0.tags[22].GetValue<uint>(0));
             }
         }
