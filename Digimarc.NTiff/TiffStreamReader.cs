@@ -186,7 +186,7 @@ namespace Digimarc.NTiff
                 case TagDataType.SRational:
                     return ParseTag<SRational>(tag);
                 case TagDataType.Short:
-                    return ParseTag<short>(tag);
+                    return ParseTag<ushort>(tag);
                 case TagDataType.SLong:
                     return ParseTag<int>(tag);
                 case TagDataType.SShort:
