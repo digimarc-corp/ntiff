@@ -34,7 +34,7 @@ namespace Digimarc.NTiff.Types
         public readonly uint Denominator;
         public double ToDouble()
         {
-            return Numerator / Denominator;
+            return (double)Numerator / Denominator;
         }
 
         public override string ToString()
