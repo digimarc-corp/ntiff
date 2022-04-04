@@ -91,15 +91,15 @@ namespace Digimarc.NTiff.Test
         }
 
         [Theory]
-        [InlineData(SamplesList.LAB, 0x08, false, 23)]
-        public void CanReadIFDFromFixedOffset(string filename, int offset, bool bigEndian, int tagCount)
+        [InlineData(SamplesList.LAB, 0x08, 23)]
+        public void CanReadIFDFromFixedOffset(string filename, uint offset, int tagCount)
         {
             using (var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var tiffStream = new TiffStreamReader(stream);
-                var ifd0 = tiffStream.ReadIFD(8);
+                var ifd0 = tiffStream.ReadIFD(offset);
 
-                Assert.Equal(23, ifd0.tags.Length);
+                Assert.Equal(tagCount, ifd0.tags.Length);
             }
         }
 
