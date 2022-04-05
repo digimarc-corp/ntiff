@@ -24,6 +24,18 @@ fi
 
 set -e
 
+# get timestamp and commit hash
+date=$(date)
+hash=`git rev-parse HEAD | cut -c 1-11`
+if [ -z "$(git status --porcelain)" ]; then
+  echo "Working directory clean, HEAD $hash"
+else 
+  echo 'Working directory dirty; commit changes before pushing a release'
+  if [ "$force" != true ]; then
+    exit -1
+  fi
+fi
+
 version=$(cat Digimarc.NTiff/Digimarc.NTiff.csproj | grep 'Version' | sed -E 's/.+Version>([0-9\.]+)<\/Version.*/\1/')
 package="Digimarc.NTiff.$version.nupkg"
 echo "Building NTiff $version ($package)"
