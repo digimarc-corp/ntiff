@@ -7,6 +7,10 @@
 *.sln.docstates
 .vs/
 .vscode/
+.idea
+
+# dangerous things
+*.pfx
 
 # Gradle temp files
 .gradle
@@ -20,6 +24,7 @@ x64/
 [Bb]in/
 [Oo]bj/
 lib/
+*.nupkg
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 #!packages/*/build/

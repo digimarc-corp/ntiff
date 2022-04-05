@@ -32,9 +32,9 @@ namespace Digimarc.NTiff.Test
         {
             var tiff = new Tiff(SamplesList.LAB);
 
-            Assert.Equal(1, tiff.Images.Count);
+            Assert.Single(tiff.Images);
             Assert.Equal(23, tiff.Images[0].Tags.Count);
-            Assert.Equal(1, tiff.Images[0].Strips.Count);
+            Assert.Single(tiff.Images[0].Strips);
             Assert.Equal(36, tiff.Images[0].Exif.Count);
         }
 
@@ -43,9 +43,9 @@ namespace Digimarc.NTiff.Test
         {
             var tiff = new Tiff(SamplesList.Pyramid);
 
-            Assert.Equal(1, tiff.Images.Count);
-            Assert.Equal(1, tiff.Images[0].SubImages.Count);
-            Assert.Equal(1, tiff.Images[0].SubImages[0].Strips.Count);
+            Assert.Single(tiff.Images);
+            Assert.Single(tiff.Images[0].SubImages);
+            Assert.Single(tiff.Images[0].SubImages[0].Strips);
             Assert.Equal(15, tiff.Images[0].SubImages[0].Tags.Count);
         }
 
